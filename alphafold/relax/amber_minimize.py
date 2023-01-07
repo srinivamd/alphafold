@@ -26,10 +26,11 @@ from alphafold.relax import cleanup
 from alphafold.relax import utils
 import ml_collections
 import numpy as np
-from simtk import openmm
-from simtk import unit
-from simtk.openmm import app as openmm_app
-from simtk.openmm.app.internal.pdbstructure import PdbStructure
+import openmm
+from openmm import unit
+from openmm import app as openmm_app
+from openmm.app.internal.pdbstructure import PdbStructure
+
 
 
 ENERGY = unit.kilocalories_per_mole
@@ -91,7 +92,7 @@ def _openmm_minimize(
     _add_restraints(system, pdb, stiffness, restraint_set, exclude_residues)
 
   integrator = openmm.LangevinIntegrator(0, 0.01, 0.0)
-  platform = openmm.Platform.getPlatformByName("CUDA" if use_gpu else "CPU")
+  platform = openmm.Platform.getPlatformByName("HIP" if use_gpu else "CPU")
   simulation = openmm_app.Simulation(
       pdb.topology, system, integrator, platform)
   simulation.context.setPositions(pdb.positions)
