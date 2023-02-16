@@ -30,8 +30,7 @@ import openmm
 from openmm import unit
 from openmm import app as openmm_app
 from openmm.app.internal.pdbstructure import PdbStructure
-
-
+import jax
 
 ENERGY = unit.kilocalories_per_mole
 LENGTH = unit.angstroms
@@ -487,7 +486,9 @@ def run_pipeline(
       pdb_string = clean_protein(prot, checks=True)
     else:
       pdb_string = ret["min_pdb"]
-    ret.update(get_violation_metrics(prot))
+    # Calculation of violations can cause CUDA errors for some JAX versions.
+    with jax.default_device(jax.devices("cpu")[0]):
+      ret.update(get_violation_metrics(prot))
     ret.update({
         "num_exclusions": len(exclude_residues),
         "iteration": iteration,
